@@ -1,0 +1,26 @@
+-- EVALUATE ADDCOLUMNS ( -- Pro DAX Studio aby se dalo spustit jako select. Odkomentovat místo navazujícího řádku
+DimČas = ADDCOLUMNS ( -- pro SSAS bez názvu, od toho rovná se
+        SELECTCOLUMNS( GENERATESERIES ( 1/1440, 1, TIME (0,1,0) ), "Time", [Value] ), 
+         --SELECTCOLUMNS( GENERATESERIES ( 1/86400, 1, TIME ( 0, 0, 1 ) ), "Time", [Value] ), -- toto je po sekundách
+        "DimCasID", value(FORMAT ( [Time], "hhnn" )),
+        "Čas", FORMAT ( [Time], "hh:nn"), 
+        "HodinaTxt", FORMAT ( [Time], "hh"), -- nechávám jako txt kvůli třídění v Excelu
+        "Hodina", FLOOR( HOUR( [Time] ),  1 ), -- int        
+        "Hodin12", FLOOR( HOUR( [Time] ), 12 ),
+        "Hodin08", FLOOR( HOUR( [Time] ),  8 ),
+        "Hodin06", FLOOR( HOUR( [Time] ),  6 ),
+        "Hodin04", FLOOR( HOUR( [Time] ),  4 ),
+        "Hodin02", FLOOR( HOUR( [Time] ),  2 ),
+        "Čas30m", FORMAT( TIME ( HOUR ( [Time] ), IF ( MINUTE ( [Time] ) >= 30, 30, 0 ), 0 ) ,"hh:nn"),
+        "Čas10m", FORMAT( TIME ( HOUR ( [Time] ), IF ( MINUTE ( [Time] ) >= 10, 10, 0 ), 0 ) ,"hh:nn"),
+        "Čas15m", FORMAT( TIME ( HOUR ( [Time] ), IF ( MINUTE ( [Time] ) >= 15, 15, 0 ), 0 ) ,"hh:nn"),
+        "Čas05m", FORMAT( TIME ( HOUR ( [Time] ), IF ( MINUTE ( [Time] ) >=  5,  5, 0 ), 0 ) ,"hh:nn"),
+        "DenČást4", SWITCH ( -- den rozdělený na 4 části
+            TRUE (),
+            HOUR ( [Time] ) < 5,  "Noc",
+            HOUR ( [Time] ) < 12, "Ráno",
+            HOUR ( [Time] ) < 17, "Odpoledne",
+            HOUR ( [Time] ) < 21, "Večer",
+            "Noc"
+        )
+    )
